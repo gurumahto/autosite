@@ -9,11 +9,27 @@ const templates = [
 
 export default function HomePage() {
   const [selectedTemplate, setSelectedTemplate] = useState('salon');
-  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState('');
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    setSubmitted(true);
+    setStatus('Saving details...');
+    const formData = new FormData(event.currentTarget);
+    const response = await fetch('/api/user-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: formData.get('name'),
+        email: formData.get('email'),
+        phone: formData.get('phone'),
+        businessName: formData.get('businessName'),
+        businessType: formData.get('businessType'),
+        description: formData.get('description'),
+        templateId: formData.get('template'),
+      }),
+    });
+
+    setStatus(response.ok ? 'Details saved. Your site is ready to generate.' : 'Details could not be saved.');
   }
 
   return (
@@ -35,15 +51,23 @@ export default function HomePage() {
             <input name="email" type="email" required placeholder="jordan@example.com" />
           </label>
           <label>
+            Phone number
+            <input name="phone" type="tel" placeholder="+1 555 0100" />
+          </label>
+          <label>
             Business name
             <input name="businessName" required placeholder="Northline Studio" />
+          </label>
+          <label>
+            Business type
+            <input name="businessType" required placeholder="Salon, studio, or agency" />
           </label>
           <label>
             Business description
             <textarea name="description" required rows="5" placeholder="What makes this business worth remembering?" />
           </label>
           <button type="submit">Start building</button>
-          {submitted && <p className="status">Details captured. Generation workflow is ready for the next step.</p>}
+          {status && <p className="status">{status}</p>}
         </div>
 
         <fieldset className="template-column">
