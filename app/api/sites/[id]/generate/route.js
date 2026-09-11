@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { withTransaction } from '../../../../../lib/db/pool';
-import { logger } from '../../../../../lib/logging/logger';
+import { withTransaction } from '../../../../lib/db/pool';
+import { logger } from '../../../../lib/logging/logger';
 
 const identifierSchema = z.string().regex(/^\d+$/);
 const idempotencyKeySchema = z.string().trim().min(8).max(200);

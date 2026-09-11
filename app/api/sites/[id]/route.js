@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { databasePool } from '../../../../lib/db/pool';
-import { logger } from '../../../../lib/logging/logger';
+import { databasePool } from '../../../lib/db/pool';
+import { logger } from '../../../lib/logging/logger';
 
 const identifierSchema = z.string().regex(/^\d+$/);
 
