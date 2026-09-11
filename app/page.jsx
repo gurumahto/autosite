@@ -29,7 +29,7 @@ export default function HomePage() {
       }),
     });
 
-    setStatus(response.ok ? 'Details saved. Your site is ready to generate.' : 'Details could not be saved.');
+    setStatus(response.ok ? 'Details saved. Your site is being generated.' : 'Details could not be saved.');
   }
 
   return (

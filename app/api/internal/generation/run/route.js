@@ -4,7 +4,7 @@ import { logger } from '../../../../../lib/logging/logger';
 
 export async function POST(request) {
   const authorization = request.headers.get('authorization');
-  const expected = process.env.WORKER_SECRET;
+  const expected = process.env.CRON_SECRET || process.env.WORKER_SECRET;
 
   if (!expected || authorization !== `Bearer ${expected}`) {
     logger.warn('generation_worker_unauthorized');

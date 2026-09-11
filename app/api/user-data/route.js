@@ -21,6 +21,7 @@ const templateDefinitions = {
 export async function POST(request) {
   const payload = await request.json().catch(() => null);
   const result = userDataSchema.safeParse(payload);
+  const idempotencyKey = request.headers.get('idempotency-key') || crypto.randomUUID();
 
   if (!result.success) {
     return NextResponse.json(
@@ -62,11 +63,23 @@ export async function POST(request) {
          RETURNING website_id, status`,
         [userResult.rows[0].user_id, userDataResult.rows[0].user_data_id, templateResult.rows[0].template_id],
       );
+      const jobResult = await client.query(
+        `INSERT INTO generation_jobs (website_id, idempotency_key, correlation_id)
+         VALUES ($1, $2, $3)
+         RETURNING generation_job_id, status, correlation_id`,
+        [websiteResult.rows[0].website_id, idempotencyKey, crypto.randomUUID()],
+      );
+      await client.query(
+        `UPDATE websites
+         SET status = 'Building', build_started_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+         WHERE website_id = $1`,
+        [websiteResult.rows[0].website_id],
+      );
 
-      return websiteResult.rows[0];
+      return { site: { ...websiteResult.rows[0], status: 'Building' }, job: jobResult.rows[0] };
     });
 
-    return NextResponse.json({ message: 'Business details saved.', site: persisted }, { status: 201 });
+    return NextResponse.json({ message: 'Business details saved and generation queued.', ...persisted }, { status: 201 });
   } catch (error) {
     logger.error('user_data_persistence_failed', { error });
     return NextResponse.json({ error: 'Business details could not be saved.' }, { status: 503 });
