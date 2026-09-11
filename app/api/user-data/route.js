@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { withTransaction } from '../../../../lib/db/pool';
-import { logger } from '../../../../lib/logging/logger';
+import { logger } from '../../../lib/logging/logger';
 
 const userDataSchema = z.object({
   name: z.string().trim().min(1).max(120),
